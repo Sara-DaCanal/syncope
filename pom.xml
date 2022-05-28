@@ -2397,7 +2397,7 @@ under the License.
         </executions>
       </plugin>
 
-      <plugin>
+      <!--<plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
         <configuration>
@@ -2436,7 +2436,7 @@ under the License.
             </goals>
           </execution>
         </executions>
-      </plugin>
+      </plugin>-->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
