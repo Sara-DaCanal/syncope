@@ -542,6 +542,8 @@ under the License.
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
     <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>
     <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+    <sonar.organization>sara-dacanal</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
     <targetJdk>11</targetJdk>
     <rootpom.basedir>${basedir}</rootpom.basedir>
