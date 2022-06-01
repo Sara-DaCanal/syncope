@@ -118,7 +118,7 @@ under the License.
 
   <build>
     <plugins>
-      <plugin>
+      <!--<plugin>
         <groupId>org.codehaus.cargo</groupId>
         <artifactId>cargo-maven3-plugin</artifactId>
         <inherited>true</inherited>
@@ -226,7 +226,7 @@ under the License.
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin>-->
       
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -298,7 +298,7 @@ under the License.
         <skipTests>true</skipTests>
       </properties>
 
-      <build>
+     <!-- <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
         
         <plugins>
@@ -319,7 +319,7 @@ under the License.
             </configuration>
           </plugin>
         </plugins>
-      </build>
+      </build>-->
     </profile>
     
     <!-- requires JAVA_HOME set to the latest JDK from https://github.com/TravaOpenJDK/trava-jdk-11-dcevm -->
