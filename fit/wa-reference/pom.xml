@@ -358,7 +358,7 @@ under the License.
             </executions>
           </plugin>
 
-          <plugin>
+          <!--<plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
@@ -374,7 +374,7 @@ under the License.
                 </properties>
               </configuration>
             </configuration>
-          </plugin>
+          </plugin>-->
         </plugins>
         
         <resources>
