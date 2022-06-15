@@ -16,32 +16,37 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-public class TestEncryptor{
+public class TestEncryptorBis{
     private  static Encryptor encryptor;
+    private static Encryptor encryptor1;
+    private static Encryptor encryptor2;
+    private static Encryptor encryptor3;
     private String value;
     private CipherAlgorithm cipherAlgorithm;
     private String encoded;
-    static MockedStatic<ApplicationContextProvider> util;
+    private static MockedStatic<ApplicationContextProvider> util;
 
-    
-    public TestEncryptor(string value, CipherAlgorithm cipherAlgorithm){
+
+    public TestEncryptorBis(string value, CipherAlgorithm cipherAlgorithm){
         configure(value, cipherAlgorithm);
     }
 
-   @BeforeClass
+    @BeforeClass
     public static void setUp(){
         DefaultListableBeanFactory factory=new DefaultListableBeanFactory();
 
         factory.registerSingleton("securityProperties", new SecurityProperties());
 
-           util = Mockito.mockStatic(ApplicationContextProvider.class);
-            util.when(ApplicationContextProvider::getBeanFactory).thenReturn(factory);
-            util.when(ApplicationContextProvider::getApplicationContext).thenReturn(new DummyConfigurableApplicationContext(factory));
-        encryptor = Encryptor.getInstance();
+        util = Mockito.mockStatic(ApplicationContextProvider.class);
+        util.when(ApplicationContextProvider::getBeanFactory).thenReturn(factory);
+        util.when(ApplicationContextProvider::getApplicationContext).thenReturn(new DummyConfigurableApplicationContext(factory));
+        encryptor = Encryptor.getInstance("");
+        encryptor1=Encryptor.getInstance(null);
+        encryptor2=Encryptor.getInstance("short");
+        encryptor3=Encryptor.getInstance("long_secret_key_1234");
     }
 
     private void configure(string value, CipherAlgorithm cipherAlgorithm) {
-       // encryptor = Encryptor.getInstance();
         this.cipherAlgorithm= cipherAlgorithm;
         switch (value){
             case VALID:
@@ -89,8 +94,8 @@ public class TestEncryptor{
                 {string.VOID, CipherAlgorithm.SSHA512},
                 {string.NULL, CipherAlgorithm.SSHA512},
                 {string.VALID, CipherAlgorithm.BCRYPT},
-                {string.VOID, CipherAlgorithm.BCRYPT},
-                {string.NULL, CipherAlgorithm.BCRYPT},
+                {string.VALID, CipherAlgorithm.BCRYPT},
+                {string.VALID, CipherAlgorithm.BCRYPT},
                 {string.VALID, null},
                 {string.NULL, null},
                 {string.VOID, null},
@@ -102,13 +107,48 @@ public class TestEncryptor{
     @Test
     public void test() {
         try {
-
             encoded = encryptor.encode(value, cipherAlgorithm);
             if(value==null) Assert.assertNull(encoded);
             else Assert.assertTrue(encryptor.verify(value, cipherAlgorithm, encoded));
         } catch (UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
                 IllegalBlockSizeException | BadPaddingException e) {
-           Assert.fail();
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void test1() {
+        try {
+            encoded = encryptor1.encode(value, cipherAlgorithm);
+            if(value==null) Assert.assertNull(encoded);
+            else Assert.assertTrue(encryptor1.verify(value, cipherAlgorithm, encoded));
+        } catch (UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
+                IllegalBlockSizeException | BadPaddingException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void test2() {
+        try {
+            encoded = encryptor2.encode(value, cipherAlgorithm);
+            if(value==null) Assert.assertNull(encoded);
+            else Assert.assertTrue(encryptor2.verify(value, cipherAlgorithm, encoded));
+        } catch (UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
+                IllegalBlockSizeException | BadPaddingException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void test3() {
+        try {
+            encoded = encryptor3.encode(value, cipherAlgorithm);
+            if(value==null) Assert.assertNull(encoded);
+            else Assert.assertTrue(encryptor3.verify(value, cipherAlgorithm, encoded));
+        } catch (UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
+                IllegalBlockSizeException | BadPaddingException e) {
+            Assert.fail();
         }
     }
 
