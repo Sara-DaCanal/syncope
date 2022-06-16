@@ -23,7 +23,7 @@ import java.util.Set;
 
 
 @RunWith(Parameterized.class)
-public class TestAuthDataAccessor {
+public class TestAuthDataAccessorBis {
     private String username;
     private String dependencyKey;
     private AuthDataAccessor auth;
@@ -32,7 +32,7 @@ public class TestAuthDataAccessor {
 
     private static SecurityProperties sp = new SecurityProperties();
 
-    public TestAuthDataAccessor(values username, values dependency, boolean expected){
+    public TestAuthDataAccessorBis(values username, values dependency, boolean expected){
         configure(username, dependency, expected);
     }
 
@@ -83,6 +83,12 @@ public class TestAuthDataAccessor {
             case INVALID:
                 this.username="not_a_user";
                 break;
+            case ADMIN:
+                this.username="admin";
+                break;
+            case ANONYM:
+                this.username="anonymous";
+                break;
         }
         switch (dependency){
             case NULL:
@@ -99,29 +105,20 @@ public class TestAuthDataAccessor {
                 break;
         }
         this.expected=expected;
-        this.auth = new AuthDataAccessor(sp, null, getMockedUserDAO(), getMockedGroupDAO(), null, null, null, null, null, getDelegationDAO(true), null, null, null, null);
+        this.auth = new AuthDataAccessor(sp, null, getMockedUserDAO(), getMockedGroupDAO(), null, null, null, null, null, getDelegationDAO(false), null, null, null, null );
     }
 
 
     @Parameterized.Parameters
     public static Collection parameters(){
         return Arrays.asList(new Object[][]{
-                {values.NULL, values.NULL, true},
-                {values.VOID, values.NULL, true},
-                {values.VALID, values.NULL, false},
-                {values.INVALID, values.NULL, true},
-                {values.NULL, values.VOID, true},
-                {values.VOID, values.VOID, true},
-                {values.VALID, values.VOID, true},
-                {values.INVALID, values.VOID, true},
+                {values.ADMIN, values.NULL, false},
+                {values.ANONYM, values.NULL, false},
                 {values.NULL, values.VALID, false},
                 {values.VOID, values.VALID, false},
                 {values.VALID, values.VALID, false},
                 {values.INVALID, values.VALID, false},
-                {values.NULL, values.INVALID, true},
-                {values.VOID, values.INVALID, true},
-                {values.VALID, values.INVALID, true},
-                {values.INVALID, values.INVALID, true}
+
         });
     }
 
@@ -142,6 +139,7 @@ public class TestAuthDataAccessor {
     }
 
     private enum values{
-        VALID, VOID, NULL, INVALID
+        VALID, VOID, NULL, INVALID, ADMIN, ANONYM
     }
 }
+

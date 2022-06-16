@@ -11,6 +11,12 @@ import java.util.Set;
 
 public class DummyDelegation implements Delegation {
 
+    private boolean emptyRole;
+
+    public DummyDelegation(boolean emptyRole){
+        this.emptyRole = emptyRole;
+    }
+
     private class DummyRole implements Role{
 
         @Override
@@ -130,7 +136,8 @@ public class DummyDelegation implements Delegation {
 
     @Override
     public Set<? extends Role> getRoles() {
-        return Set.of(new DummyRole());
+        if(emptyRole) return Set.of();
+        else return Set.of(new DummyRole());
     }
 
     @Override
