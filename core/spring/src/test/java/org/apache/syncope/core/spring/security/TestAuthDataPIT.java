@@ -1,8 +1,11 @@
 package org.apache.syncope.core.spring.security;
 
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -13,27 +16,25 @@ import org.junit.runners.Parameterized;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.apache.syncope.core.spring.security.AuthDataAccessor.ANONYMOUS_AUTHORITIES;
 
 @RunWith(Parameterized.class)
-public class TestAuthDataAccessor {
+public class TestAuthDataPIT {
     private String username;
     private String dependencyKey;
     private AuthDataAccessor auth;
-    private boolean expected;
+    private Set<SyncopeGrantedAuthority> expected;
     static MockedStatic<ApplicationContextProvider> util;
 
     private static SecurityProperties sp = new SecurityProperties();
 
-    public TestAuthDataAccessor(values username, values dependency, boolean expected){
-        configure(username, dependency, expected);
+    public TestAuthDataPIT(values username, values dependency){
+        configure(username, dependency);
     }
 
     public UserDAO getMockedUserDAO(){
@@ -68,7 +69,8 @@ public class TestAuthDataAccessor {
         util.when(ApplicationContextProvider::getApplicationContext).thenReturn(new DummyConfigurableApplicationContext(factory));
     }
 
-    private void configure(values username, values dependency, boolean expected){
+    private void configure(values username, values dependency){
+        this.auth = new AuthDataAccessor(sp, null, getMockedUserDAO(), getMockedGroupDAO(), null, null, null, null, null, getDelegationDAO(false), null, null, null, null);
         switch (username){
             case NULL:
                 this.username=null;
@@ -78,9 +80,20 @@ public class TestAuthDataAccessor {
                 break;
             case VALID:
                 this.username="username";
+                this.expected=Set.of();
                 break;
             case INVALID:
                 this.username="not_a_user";
+                break;
+            case ADMIN:
+                this.username="admin";
+                this.expected= EntitlementsHolder.getInstance().getValues().stream().
+                        map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
+                        collect(Collectors.toSet());
+                break;
+            case ANONYM:
+                this.username="anonymous";
+                this.expected=ANONYMOUS_AUTHORITIES;
                 break;
         }
         switch (dependency){
@@ -92,47 +105,32 @@ public class TestAuthDataAccessor {
                 break;
             case VALID:
                 this.dependencyKey="delegate";
+                Map<String,Set<String>> delegMap = new HashMap<>();
+                delegMap.put("all", new HashSet<>());
+                this.expected = auth.buildAuthorities(delegMap);
                 break;
             case INVALID:
                 this.dependencyKey="not_exist";
                 break;
         }
-        this.expected=expected;
-        this.auth = new AuthDataAccessor(sp, null, getMockedUserDAO(), getMockedGroupDAO(), null, null, null, null, null, getDelegationDAO(true), null, null, null, null);
     }
 
 
     @Parameterized.Parameters
     public static Collection parameters(){
         return Arrays.asList(new Object[][]{
-                {values.NULL, values.NULL, true},
-                {values.VOID, values.NULL, true},
-                {values.VALID, values.NULL, false},
-                {values.INVALID, values.NULL, true},
-                {values.NULL, values.VOID, true},
-                {values.VOID, values.VOID, true},
-                {values.VALID, values.VOID, true},
-                {values.INVALID, values.VOID, true},
-                {values.NULL, values.VALID, false},
-                {values.VOID, values.VALID, false},
-                {values.VALID, values.VALID, false},
-                {values.INVALID, values.VALID, false},
-                {values.NULL, values.INVALID, true},
-                {values.VOID, values.INVALID, true},
-                {values.VALID, values.INVALID, true},
-                {values.INVALID, values.INVALID, true}
+
+                {values.VALID, values.NULL},
+                {values.ADMIN, values.NULL},
+                {values.ANONYM, values.NULL},
+                {values.NULL, values.VALID},
         });
     }
 
     @Test
     public void test(){
-        try{
-            Set<SyncopeGrantedAuthority> set = auth.getAuthorities(username, dependencyKey);
-            Assert.assertFalse(expected);
-            Assert.assertNotNull(set);
-        }catch (UsernameNotFoundException e){
-            Assert.assertTrue(expected);
-        }
+        Set<SyncopeGrantedAuthority> set = auth.getAuthorities(username, dependencyKey);
+        Assert.assertEquals(expected, set);
     }
 
     @AfterClass
@@ -141,6 +139,8 @@ public class TestAuthDataAccessor {
     }
 
     private enum values{
-        VALID, VOID, NULL, INVALID
+        VALID, VOID, NULL, INVALID, ADMIN, ANONYM
     }
+
+
 }

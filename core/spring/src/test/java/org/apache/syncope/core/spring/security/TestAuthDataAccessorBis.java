@@ -38,7 +38,7 @@ public class TestAuthDataAccessorBis {
 
     public UserDAO getMockedUserDAO(){
         UserDAO user = Mockito.mock(UserDAO.class);
-        Mockito.when(user.findKey("abcde")).thenReturn("");
+        //Mockito.when(user.findKey("abcde")).thenReturn("");
         User u = new DummyUser();
         Mockito.when(user.findByUsername("username")).thenReturn( u);
         return user;

@@ -117,9 +117,18 @@ under the License.
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
+
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest</artifactId>
+        <version>2.2</version>
+        <scope>test</scope>
+
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <version>4.12</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -135,6 +144,11 @@ under the License.
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
+      <!--<plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
+      </plugin>-->
     </plugins>
     <resources>
       <resource>
@@ -160,11 +174,9 @@ under the License.
         <activeByDefault>false</activeByDefault>
       </activation>
       <properties>
-        <!-- Use a stable version istead of SNAPSHOT one -->
         <ba-dua.version>0.6.0</ba-dua.version>
         <argLine>-javaagent:target/dependency/ba-dua-agent-rt-${ba-dua.version}-all.jar -Doutput.file=target/badua.ser</argLine>
       </properties>
-      <!-- Needed for generate the report -->
       <dependencies>
         <dependency>
           <groupId>br.usp.each.saeg</groupId>
@@ -174,7 +186,14 @@ under the License.
       </dependencies>
       <build>
         <plugins>
-
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M6</version>
+                <configuration>
+                  <useSystemClassLoader>false</useSystemClassLoader>
+                </configuration>
+              </plugin>
           <!-- Copy ba-dua-agent-rt from .m2 directory to target/dependency -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -192,6 +211,7 @@ under the License.
                       <artifactId>ba-dua-agent-rt</artifactId>
                       <classifier>all</classifier>
                       <version>${ba-dua.version}</version>
+                      <outputDirectory>${project.basedir}/target/dependency</outputDirectory>
                     </artifactItem>
                   </artifactItems>
                 </configuration>
@@ -223,6 +243,50 @@ under the License.
                     <argument>${project.build.directory}/badua.xml</argument>
                   </arguments>
                 </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>mutation-coverage</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <withHistory>true</withHistory>
+        <pitest.version>1.8.0</pitest.version>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-maven</artifactId>
+            <version>${pitest.version}</version>
+            <configuration>
+              <targetClasses>
+                <param>org.apache.syncope.core.spring.security.Encryptor</param>
+                <param>org.apache.syncope.core.spring.security.AuthDataAccessor</param>
+              </targetClasses>
+              <targetTests>
+                <param>org.apache.syncope.core.spring.security.TestAuthDataAccessor</param>
+                <param>org.apache.syncope.core.spring.security.TestAuthDataAccessorBis</param>
+                <param>org.apache.syncope.core.spring.security.TestAuthDataPIT</param>
+                <param>org.apache.syncope.core.spring.security.TestEncryptor</param>
+                <param>org.apache.syncope.core.spring.security.TestEncryptorBis</param>
+              </targetTests>
+              <avoidCallsTo>
+                <avoidCallsTo>org.slf4j</avoidCallsTo>
+              </avoidCallsTo>
+            </configuration>
+            <executions>
+              <execution>
+                <id>Generate PIT report</id>
+                <phase>test-compile</phase>
+                <goals>
+                  <goal>mutationCoverage</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>
