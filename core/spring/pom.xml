@@ -275,6 +275,7 @@ under the License.
                 <param>org.apache.syncope.core.spring.security.TestAuthDataPIT</param>
                 <param>org.apache.syncope.core.spring.security.TestEncryptor</param>
                 <param>org.apache.syncope.core.spring.security.TestEncryptorBis</param>
+                <param>org.apache.syncope.core.spring.security.TestEncryptorPIT</param>
               </targetTests>
               <avoidCallsTo>
                 <avoidCallsTo>org.slf4j</avoidCallsTo>
